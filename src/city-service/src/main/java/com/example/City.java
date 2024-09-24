@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class City extends PanacheEntity {
 
     @Column(unique = true)
-    public String name;
+    private String name;
 
     public String getName() {
         return name;

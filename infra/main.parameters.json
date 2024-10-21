@@ -19,6 +19,9 @@
       },
       "containerRegistryHostSuffix": {
         "value": "${CONTAINER_REGISTRY_HOST_SUFFIX=azurecr.io}"
+      },
+      "enableTelemetry": {
+        "value": "${enableTelemetry=true}"
       }
     }
 }

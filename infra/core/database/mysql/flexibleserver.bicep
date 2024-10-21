@@ -17,7 +17,7 @@ param allowedSingleIPs array = []
 // MySQL version
 param version string
 
-resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-06-30' = {
+resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
   location: location
   tags: tags
   name: name

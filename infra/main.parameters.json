@@ -11,6 +11,9 @@
       "cityServiceAppExists": {
         "value": "${SERVICE_CITY_SERVICE_RESOURCE_EXISTS=false}"
       },
+      "weatherServiceAppExists": {
+        "value": "${SERVICE_WEATHER_SERVICE_RESOURCE_EXISTS=false}"
+      },
       "containerRegistryHostSuffix": {
         "value": "${CONTAINER_REGISTRY_HOST_SUFFIX=azurecr.io}"
       }

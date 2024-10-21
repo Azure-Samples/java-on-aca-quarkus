@@ -23,3 +23,17 @@ services:
         posix:
           shell: sh
           run: 'mvn -DskipTests -Dnative -Dquarkus.native.container-build -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1.4.0-Final-java21-amd64 clean package'
+  weather-service:
+    project: ./src/weather-service
+    language: java
+    host: containerapp
+    docker:
+      path: ./src/main/docker/Dockerfile.native
+    hooks:
+      prebuild:
+        windows:
+          shell: pwsh
+          run: 'mvn "-DskipTests" "-Dnative" "-Dquarkus.native.container-build" "-Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1.4.0-Final-java21-amd64" clean package'
+        posix:
+          shell: sh
+          run: 'mvn -DskipTests -Dnative -Dquarkus.native.container-build -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1.4.0-Final-java21-amd64 clean package'

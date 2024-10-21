@@ -60,6 +60,22 @@ param postgresAdminUsername string = 'demouser'
 @description('Password for the PostgreSQL admin user. If not specified, a password will be generated.')
 param postgresAdminPassword string = newGuid()
 
+@maxLength(64)
+@description('Name of the MySQL flexible server to deploy. If not specified, a name will be generated. The name is global and must be unique within Azure. The maximum length is 64 characters. It contains only lowercase letters, numbers and hyphens, and cannot start nor end with a hyphen.')
+param mysqlFlexibleServerName string = ''
+
+/* ------------------------------- MySQL ------------------------------- */
+
+@description('Name of the MySQL database.')
+param mysqlDatabaseName string = 'demodb'
+
+@description('Name of the MySQL admin user.')
+param mysqlAdminUsername string = 'demouser'
+
+@secure()
+@description('Password for the MySQL admin user. If not specified, a password will be generated.')
+param mysqlAdminPassword string = newGuid()
+
 /* ------------------------------ city-service ------------------------------ */
 
 @maxLength(32)
@@ -68,6 +84,15 @@ param cityServiceContainerAppName string = ''
 
 @description('Set if the city-service container app already exists.')
 param cityServiceAppExists bool = false
+
+/* ------------------------------ weather-service ------------------------------ */
+
+@maxLength(32)
+@description('Name of the weather-serivce container app to deploy. If not specified, a name will be generated. The maximum length is 32 characters.')
+param weatherServiceContainerAppName string = ''
+
+@description('Set if the weather-service container app already exists.')
+param weatherServiceAppExists bool = false
 
 /* -------------------------------------------------------------------------- */
 /*                                  VARIABLES                                 */
@@ -96,7 +121,9 @@ var _containerAppsEnvironmentName = !empty(containerAppsEnvironmentName) ? conta
 var _logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceName) ? logAnalyticsWorkspaceName : take('${abbrs.operationalInsightsWorkspaces}${environmentName}', 63)
 var _applicationInsightsName = !empty(applicationInsightsName) ? applicationInsightsName : take('${abbrs.insightsComponents}${environmentName}', 255)
 var _cityServiceContainerAppName = !empty(cityServiceContainerAppName) ? cityServiceContainerAppName : take('${abbrs.appContainerApps}city-service-${environmentName}', 32)
-var _cityServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
+var _cityServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}city-service-${resourceToken}'
+var _weatherServiceContainerAppName = !empty(weatherServiceContainerAppName) ? weatherServiceContainerAppName : take('${abbrs.appContainerApps}weather-service-${environmentName}', 32)
+var _weatherServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}weather-service-${resourceToken}'
 
 /* --------------------- Globally Unique Resource Names --------------------- */
 
@@ -109,6 +136,11 @@ var _containerRegistryName = !empty(containerRegistryName) ? containerRegistryNa
 // The 'take(..., 63)' function is used to ensure the name is not longer than 63 characters, even if it is not necessary.
 // The name needs to be lower case, so  it is converted to lower case.
 var _postgresFlexibleServerName = !empty(postgresFlexibleServerName) ? postgresFlexibleServerName : take(toLower('${abbrs.dBforPostgreSQLServers}${take(environmentName, 44)}-${resourceToken}'), 63)
+
+// 'mysql-' is 6 characters long, 'resourceToken' is 13 characters long, there is one hyphen, so, as the maximum length is 64 characters, the environment name can be maximum 44 characters long.
+// The 'take(..., 64)' function is used to ensure the name is not longer than 64 characters, even if it is not necessary.
+// The name needs to be lower case, so  it is converted to lower case.
+var _mysqlFlexibleServerName = !empty(mysqlFlexibleServerName) ? mysqlFlexibleServerName : take(toLower('${abbrs.dBforMySQLServers}${take(environmentName, 44)}-${resourceToken}'), 64)
 
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -198,6 +230,50 @@ module cityService './app/city-service.bicep' = {
     postgresAdminUsername: postgresAdminUsername
     postgresAdminPassword: postgresAdminPassword
     exists: cityServiceAppExists
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    containerRegistryName: containerApps.outputs.registryName
+    containerRegistryHostSuffix: containerRegistryHostSuffix
+  }
+}
+
+module mysqlFlexibleServer 'core/database/mysql/flexibleserver.bicep' = {
+  name: 'mysql-flexible-server'
+  scope: rg
+  params: {
+    name: _mysqlFlexibleServerName
+    location: location
+    tags: tags
+    version: '8.0.21'
+    sku: {
+      name: 'Standard_B1ms'
+      tier: 'Burstable'
+    }
+    storage: {
+      storageSizeGB: 32
+      autoGrow: 'Disabled'
+    }
+    administratorLogin: mysqlAdminUsername
+    administratorLoginPassword: mysqlAdminPassword
+    databaseNames: [
+      mysqlDatabaseName
+    ]
+    allowAzureIPsFirewall: true
+  }
+}
+
+module weatherService './app/weather-service.bicep' = {
+  name: 'weather-service'
+  scope: rg
+  params: {
+    name: _weatherServiceContainerAppName
+    location: location
+    tags: tags
+    identityName: _weatherServiceIdentityName
+    mysqlFlexibleServerName: _mysqlFlexibleServerName
+    mysqlDatabaseName: mysqlDatabaseName
+    mysqlAdminUsername: mysqlAdminUsername
+    mysqlAdminPassword: mysqlAdminPassword
+    exists: weatherServiceAppExists
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     containerRegistryHostSuffix: containerRegistryHostSuffix

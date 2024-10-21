@@ -62,4 +62,5 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' =
 
 }
 
+output name string = postgresServer.name
 output POSTGRES_DOMAIN_NAME string = postgresServer.properties.fullyQualifiedDomainName

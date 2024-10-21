@@ -62,4 +62,5 @@ resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
 
 }
 
+output name string = mysqlServer.name
 output MYSQL_DOMAIN_NAME string = mysqlServer.properties.fullyQualifiedDomainName

@@ -225,7 +225,7 @@ module cityService './app/city-service.bicep' = {
     location: location
     tags: tags
     identityName: _cityServiceIdentityName
-    postgresFlexibleServerName: _postgresFlexibleServerName
+    postgresFlexibleServerName: postgresFlexibleServer.outputs.name
     postgresDatabaseName: postgresDatabaseName
     postgresAdminUsername: postgresAdminUsername
     postgresAdminPassword: postgresAdminPassword
@@ -269,7 +269,7 @@ module weatherService './app/weather-service.bicep' = {
     location: location
     tags: tags
     identityName: _weatherServiceIdentityName
-    mysqlFlexibleServerName: _mysqlFlexibleServerName
+    mysqlFlexibleServerName: mysqlFlexibleServer.outputs.name
     mysqlDatabaseName: mysqlDatabaseName
     mysqlAdminUsername: mysqlAdminUsername
     mysqlAdminPassword: mysqlAdminPassword

@@ -28,17 +28,17 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-
       }
     }
     daprAIInstrumentationKey: daprEnabled && !empty(applicationInsightsName) ? applicationInsights.properties.InstrumentationKey : ''
-    appInsightsConfiguration: openTelemetryEnabled && !empty(applicationInsightsName) ? {
+    appInsightsConfiguration: {
       connectionString: applicationInsights.properties.ConnectionString
-    } : null
-    openTelemetryConfiguration: openTelemetryEnabled && !empty(applicationInsightsName) ? {
+    }
+    openTelemetryConfiguration: {
       tracesConfiguration: {
         destinations: ['appInsights']
       }
       logsConfiguration: {
         destinations: ['appInsights']
       }
-    } : null
+    }
   }
 }
 

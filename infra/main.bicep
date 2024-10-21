@@ -187,6 +187,24 @@ module postgresFlexibleServer 'core/database/postgresql/flexibleserver.bicep' = 
   }
 }
 
+module cityService './app/city-service.bicep' = {
+  name: 'city-service'
+  scope: rg
+  params: {
+    name: _cityServiceContainerAppName
+    location: location
+    tags: tags
+    identityName: _cityServiceContainerAppName
+    postgresFlexibleServerName: _postgresFlexibleServerName
+    postgresDatabaseName: postgresDatabaseName
+    postgresAdminUsername: postgresAdminUsername
+    postgresAdminPassword: postgresAdminPassword
+    exists: cityServiceExists
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    containerRegistryName: containerApps.outputs.registryName
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                   OUTPUTS                                  */
 /* -------------------------------------------------------------------------- */

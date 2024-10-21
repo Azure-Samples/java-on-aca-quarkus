@@ -105,6 +105,7 @@ module app '../core/host/container-app-upsert.bicep' = {
       }
     ]
     targetPort: 8080
+    external: false
   }
 }
 

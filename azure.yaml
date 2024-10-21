@@ -37,3 +37,7 @@ services:
         posix:
           shell: sh
           run: 'mvn -DskipTests -Dnative -Dquarkus.native.container-build -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1.4.0-Final-java21-amd64 clean package'
+  gateway:
+    project: ./src/gateway
+    language: js
+    host: containerapp

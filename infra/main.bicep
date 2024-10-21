@@ -88,11 +88,20 @@ param cityServiceAppExists bool = false
 /* ------------------------------ weather-service ------------------------------ */
 
 @maxLength(32)
-@description('Name of the weather-serivce container app to deploy. If not specified, a name will be generated. The maximum length is 32 characters.')
+@description('Name of the weather-service container app to deploy. If not specified, a name will be generated. The maximum length is 32 characters.')
 param weatherServiceContainerAppName string = ''
 
 @description('Set if the weather-service container app already exists.')
 param weatherServiceAppExists bool = false
+
+/* ------------------------------ gateway ------------------------------ */
+
+@maxLength(32)
+@description('Name of the gateway container app to deploy. If not specified, a name will be generated. The maximum length is 32 characters.')
+param gatewayContainerAppName string = ''
+
+@description('Set if the gateway container app already exists.')
+param gatewayAppExists bool = false
 
 /* -------------------------------------------------------------------------- */
 /*                                  VARIABLES                                 */
@@ -124,6 +133,8 @@ var _cityServiceContainerAppName = !empty(cityServiceContainerAppName) ? citySer
 var _cityServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}city-service-${resourceToken}'
 var _weatherServiceContainerAppName = !empty(weatherServiceContainerAppName) ? weatherServiceContainerAppName : take('${abbrs.appContainerApps}weather-service-${environmentName}', 32)
 var _weatherServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}weather-service-${resourceToken}'
+var _gatewayContainerAppName = !empty(gatewayContainerAppName) ? gatewayContainerAppName : take('${abbrs.appContainerApps}gateway-${environmentName}', 32)
+var _gatewayIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}gateway-${resourceToken}'
 
 /* --------------------- Globally Unique Resource Names --------------------- */
 
@@ -274,6 +285,23 @@ module weatherService './app/weather-service.bicep' = {
     mysqlAdminUsername: mysqlAdminUsername
     mysqlAdminPassword: mysqlAdminPassword
     exists: weatherServiceAppExists
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    containerRegistryName: containerApps.outputs.registryName
+    containerRegistryHostSuffix: containerRegistryHostSuffix
+  }
+}
+
+module gateway './app/gateway.bicep' = {
+  name: 'gateway'
+  scope: rg
+  params: {
+    name: _gatewayContainerAppName
+    location: location
+    tags: tags
+    identityName: _gatewayIdentityName
+    cityServiceUrl: 'http://${cityService.outputs.CITY_SERVICE_NAME}'
+    weatherServiceUrl: 'http://${weatherService.outputs.WEATHER_SERVICE_NAME}'
+    exists: gatewayAppExists
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     containerRegistryHostSuffix: containerRegistryHostSuffix

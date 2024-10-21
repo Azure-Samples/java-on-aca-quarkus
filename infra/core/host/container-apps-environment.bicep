@@ -6,13 +6,16 @@ param tags object = {}
 @description('Name of the Application Insights resource')
 param applicationInsightsName string = ''
 
+@description('Specifies if OpenTelemetry is enabled')
+param openTelemetryEnabled bool = false
+
 @description('Specifies if Dapr is enabled')
 param daprEnabled bool = false
 
 @description('Name of the Log Analytics workspace')
 param logAnalyticsWorkspaceName string
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
   name: name
   location: location
   tags: tags
@@ -25,6 +28,17 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01'
       }
     }
     daprAIInstrumentationKey: daprEnabled && !empty(applicationInsightsName) ? applicationInsights.properties.InstrumentationKey : ''
+    appInsightsConfiguration: openTelemetryEnabled && !empty(applicationInsightsName) ? {
+      connectionString: applicationInsights.properties.ConnectionString
+    } : null
+    openTelemetryConfiguration: openTelemetryEnabled && !empty(applicationInsightsName) ? {
+      tracesConfiguration: {
+        destinations: ['appInsights']
+      }
+      logsConfiguration: {
+        destinations: ['appInsights']
+      }
+    } : null
   }
 }
 
@@ -32,7 +46,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
   name: logAnalyticsWorkspaceName
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = if (daprEnabled && !empty(applicationInsightsName)) {
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = if ((daprEnabled || openTelemetryEnabled) && !empty(applicationInsightsName)) {
   name: applicationInsightsName
 }
 

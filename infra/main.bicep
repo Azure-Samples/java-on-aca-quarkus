@@ -158,6 +158,7 @@ module containerApps './core/host/container-apps.bicep' = {
     containerRegistryAdminUserEnabled: true
     logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
+    openTelemetryEnabled: true
   }
 }
 

@@ -7,6 +7,12 @@
       },
       "location": {
         "value": "${AZURE_LOCATION}"
+      },
+      "cityServiceAppExists": {
+        "value": "${SERVICE_CITY_SERVICE_RESOURCE_EXISTS=false}"
+      },
+      "containerRegistryHostSuffix": {
+        "value": "${CONTAINER_REGISTRY_HOST_SUFFIX=azurecr.io}"
       }
     }
 }

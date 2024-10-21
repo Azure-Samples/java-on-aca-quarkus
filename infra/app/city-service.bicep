@@ -23,6 +23,9 @@ param containerAppsEnvironmentName string
 @description('Name of the existing container registry that will be used by the container app.')
 param containerRegistryName string
 
+@description('Hostname suffix for container registry. Set when deploying to sovereign clouds')
+param containerRegistryHostSuffix string = 'azurecr.io'
+
 @description('Flag that indicates whether the container app already exists or not. This is used in container app upsert to set the image name to the value of the existing container apps image name.')
 param exists bool
 
@@ -76,6 +79,7 @@ module app '../core/host/container-app-upsert.bicep' = {
     exists: exists
     containerAppsEnvironmentName: containerAppsEnvironmentName
     containerRegistryName: containerRegistryName
+    containerRegistryHostSuffix: containerRegistryHostSuffix
     secrets: {
       jdbcurl: quarkusDatasourceJdbcUrl
       reactiveurl: quarkusDatasourceReactiveUrl

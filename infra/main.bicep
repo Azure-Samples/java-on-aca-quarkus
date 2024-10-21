@@ -33,6 +33,9 @@ param containerAppsEnvironmentName string = ''
 @description('Name of the container registry to deploy. If not specified, a name will be generated. The name is global and must be unique within Azure. The maximum length is 50 characters.')
 param containerRegistryName string = ''
 
+@description('Hostname suffix for container registry. Set when deploying to sovereign clouds')
+param containerRegistryHostSuffix string = 'azurecr.io'
+
 @maxLength(63)
 @description('Name of the log analytics workspace to deploy. If not specified, a name will be generated. The maximum length is 63 characters.')
 param logAnalyticsWorkspaceName string = ''
@@ -64,7 +67,7 @@ param postgresAdminPassword string = newGuid()
 param cityServiceContainerAppName string = ''
 
 @description('Set if the city-service container app already exists.')
-param cityServiceExists bool = false
+param cityServiceAppExists bool = false
 
 /* -------------------------------------------------------------------------- */
 /*                                  VARIABLES                                 */
@@ -194,9 +197,10 @@ module cityService './app/city-service.bicep' = {
     postgresDatabaseName: postgresDatabaseName
     postgresAdminUsername: postgresAdminUsername
     postgresAdminPassword: postgresAdminPassword
-    exists: cityServiceExists
+    exists: cityServiceAppExists
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
+    containerRegistryHostSuffix: containerRegistryHostSuffix
   }
 }
 

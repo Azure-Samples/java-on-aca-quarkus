@@ -12,5 +12,6 @@ COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 EXPOSE 80
+ENV GATEWAY_NAME=gateway
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

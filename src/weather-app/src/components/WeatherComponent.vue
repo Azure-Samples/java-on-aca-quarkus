@@ -58,7 +58,7 @@
   export default {
     data: function () {
         return {
-            apiurl: "https://gateway.CONTAINER_APP_ENV_DNS_SUFFIX",
+            apiurl: "https://GATEWAY_NAME.CONTAINER_APP_ENV_DNS_SUFFIX",
             cities: {},
             show: true
         }

@@ -41,10 +41,6 @@ param logAnalyticsWorkspaceName string = ''
 @description('Name of the application insights to deploy. If not specified, a name will be generated. The maximum length is 255 characters.')
 param applicationInsightsName string = ''
 
-@maxLength(160)
-@description('Name of the application insights dashboard to deploy. If not specified, a name will be generated. The maximum length is 160 characters.')
-param applicationInsightsDashboardName string = ''
-
 @maxLength(63)
 @description('Name of the PostgreSQL flexible server to deploy. If not specified, a name will be generated. The name is global and must be unique within Azure. The maximum length is 63 characters. It contains only lowercase letters, numbers and hyphens, and cannot start nor end with a hyphen.')
 param postgresFlexibleServerName string = ''
@@ -96,8 +92,8 @@ var _resourceGroupName = !empty(resourceGroupName) ? resourceGroupName : take('$
 var _containerAppsEnvironmentName = !empty(containerAppsEnvironmentName) ? containerAppsEnvironmentName : take('${abbrs.appManagedEnvironments}${environmentName}', 60)
 var _logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceName) ? logAnalyticsWorkspaceName : take('${abbrs.operationalInsightsWorkspaces}${environmentName}', 63)
 var _applicationInsightsName = !empty(applicationInsightsName) ? applicationInsightsName : take('${abbrs.insightsComponents}${environmentName}', 255)
-var _applicationInsightsDashboardName = !empty(applicationInsightsDashboardName) ? applicationInsightsDashboardName : take('${abbrs.portalDashboards}${environmentName}', 160)
 var _cityServiceContainerAppName = !empty(cityServiceContainerAppName) ? cityServiceContainerAppName : take('${abbrs.appContainerApps}city-service-${environmentName}', 32)
+var _cityServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
 
 /* --------------------- Globally Unique Resource Names --------------------- */
 
@@ -135,7 +131,6 @@ module monitoring './core/monitor/monitoring.bicep' = {
     tags: tags
     logAnalyticsName: _logAnalyticsWorkspaceName
     applicationInsightsName: _applicationInsightsName
-    applicationInsightsDashboardName: _applicationInsightsDashboardName
   }
 }
 
@@ -163,7 +158,7 @@ module containerApps './core/host/container-apps.bicep' = {
 }
 
 module postgresFlexibleServer 'core/database/postgresql/flexibleserver.bicep' = {
-  name: _postgresFlexibleServerName
+  name: 'postgresql-flexible-server'
   scope: rg
   params: {
     name: _postgresFlexibleServerName
@@ -194,7 +189,7 @@ module cityService './app/city-service.bicep' = {
     name: _cityServiceContainerAppName
     location: location
     tags: tags
-    identityName: _cityServiceContainerAppName
+    identityName: _cityServiceIdentityName
     postgresFlexibleServerName: _postgresFlexibleServerName
     postgresDatabaseName: postgresDatabaseName
     postgresAdminUsername: postgresAdminUsername

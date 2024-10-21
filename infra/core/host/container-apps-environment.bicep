@@ -15,7 +15,7 @@ param daprEnabled bool = false
 @description('Name of the Log Analytics workspace')
 param logAnalyticsWorkspaceName string
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-preview' = if (openTelemetryEnabled && !empty(applicationInsightsName)) {
   name: name
   location: location
   tags: tags
@@ -27,7 +27,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-
         sharedKey: logAnalyticsWorkspace.listKeys().primarySharedKey
       }
     }
-    daprAIInstrumentationKey: daprEnabled && !empty(applicationInsightsName) ? applicationInsights.properties.InstrumentationKey : ''
+    daprAIInstrumentationKey: daprEnabled ? applicationInsights.properties.InstrumentationKey : ''
     appInsightsConfiguration: {
       connectionString: applicationInsights.properties.ConnectionString
     }
@@ -42,6 +42,22 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-02-02-
   }
 }
 
+resource containerAppsEnvironmentOTELDisabled 'Microsoft.App/managedEnvironments@2024-03-01' = if (!openTelemetryEnabled) {
+  name: name
+  location: location
+  tags: tags
+  properties: {
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: logAnalyticsWorkspace.properties.customerId
+        sharedKey: logAnalyticsWorkspace.listKeys().primarySharedKey
+      }
+    }
+    daprAIInstrumentationKey: daprEnabled && !empty(applicationInsightsName) ? applicationInsights.properties.InstrumentationKey : ''
+  }
+}
+
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: logAnalyticsWorkspaceName
 }
@@ -50,6 +66,6 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing
   name: applicationInsightsName
 }
 
-output defaultDomain string = containerAppsEnvironment.properties.defaultDomain
-output id string = containerAppsEnvironment.id
-output name string = containerAppsEnvironment.name
+output defaultDomain string = openTelemetryEnabled && !empty(applicationInsightsName) ? containerAppsEnvironment.properties.defaultDomain : containerAppsEnvironmentOTELDisabled.properties.defaultDomain
+output id string = openTelemetryEnabled && !empty(applicationInsightsName) ? containerAppsEnvironment.id : containerAppsEnvironmentOTELDisabled.id
+output name string = openTelemetryEnabled && !empty(applicationInsightsName) ? containerAppsEnvironment.name : containerAppsEnvironmentOTELDisabled.name

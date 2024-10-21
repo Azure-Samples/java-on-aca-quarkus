@@ -28,7 +28,7 @@ param exists bool
 
 /* ------------------------------- PostgreSQL ------------------------------- */
 
-@description('Name of the existing Postgres Flexible Server. This is the relational database used by the Spring App to save the state of the shopping cart.')
+@description('Name of the existing Postgres Flexible Server. This is the relational database used by the Quarkus city-service App to save cities.')
 param postgresFlexibleServerName string
 
 @description('Name of the Postgres database. Several databases can be created in the same Postgres Flexible Server. We need to know the one that is created for this microservice.')

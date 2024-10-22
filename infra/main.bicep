@@ -103,6 +103,15 @@ param gatewayContainerAppName string = ''
 @description('Set if the gateway container app already exists.')
 param gatewayAppExists bool = false
 
+/* ------------------------------ weather-app ------------------------------ */
+
+@maxLength(32)
+@description('Name of the weather-app container app to deploy. If not specified, a name will be generated. The maximum length is 32 characters.')
+param weatherAppContainerAppName string = ''
+
+@description('Set if the weather-app container app already exists.')
+param weatherFrontendAppExists bool = false
+
 /* -------------------------------- Telemetry ------------------------------- */
 
 @description('Track the deployment of the template if true.')
@@ -143,6 +152,8 @@ var _weatherServiceContainerAppName = !empty(weatherServiceContainerAppName) ? w
 var _weatherServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}weather-service-${resourceToken}'
 var _gatewayContainerAppName = !empty(gatewayContainerAppName) ? gatewayContainerAppName : take('${abbrs.appContainerApps}gateway-${environmentName}', 32)
 var _gatewayIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}gateway-${resourceToken}'
+var _weatherAppContainerAppName = !empty(weatherAppContainerAppName) ? weatherAppContainerAppName : take('${abbrs.appContainerApps}weather-app-${environmentName}', 32)
+var _weatherAppIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}weather-app-${resourceToken}'
 
 /* --------------------- Globally Unique Resource Names --------------------- */
 
@@ -310,6 +321,22 @@ module gateway './app/gateway.bicep' = {
     cityServiceUrl: 'http://${cityService.outputs.CITY_SERVICE_NAME}'
     weatherServiceUrl: 'http://${weatherService.outputs.WEATHER_SERVICE_NAME}'
     exists: gatewayAppExists
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    containerRegistryName: containerApps.outputs.registryName
+    containerRegistryHostSuffix: containerRegistryHostSuffix
+  }
+}
+
+module weatherApp './app/weather-app.bicep' = {
+  name: 'weather-app'
+  scope: rg
+  params: {
+    name: _weatherAppContainerAppName
+    location: location
+    tags: tags
+    identityName: _weatherAppIdentityName
+    gatewayName: gateway.outputs.GATEWAY_NAME
+    exists: weatherFrontendAppExists
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     containerRegistryHostSuffix: containerRegistryHostSuffix

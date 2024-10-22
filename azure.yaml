@@ -41,3 +41,7 @@ services:
     project: ./src/gateway
     language: js
     host: containerapp
+  weather-app:
+    project: ./src/weather-app
+    language: js
+    host: containerapp

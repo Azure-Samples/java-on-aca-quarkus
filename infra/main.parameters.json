@@ -17,6 +17,9 @@
       "gatewayAppExists": {
         "value": "${SERVICE_GATEWAY_RESOURCE_EXISTS=false}"
       },
+      "weatherFrontendAppExists": {
+        "value": "${SERVICE_WEATHER_APP_RESOURCE_EXISTS=false}"
+      },
       "containerRegistryHostSuffix": {
         "value": "${CONTAINER_REGISTRY_HOST_SUFFIX=azurecr.io}"
       },

@@ -5,11 +5,11 @@
       color="indigo"
       dark
     >
-      <v-icon>mdi-weather-partly-cloudy</v-icon>&nbsp;
+      <v-icon>mdi-weather-partly-cloudy</v-icon>
       <v-toolbar-title>What is the weather today?</v-toolbar-title>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container
         fluid
       >
@@ -22,12 +22,12 @@
           </v-col>
         </v-row>
       </v-container>
-    </v-content>
+    </v-main>
     <v-footer
       color="indigo"
       app
     >
-      <span class="white--text"><a  class="white--text" href="https://github.com/microsoft/java-on-aca-with-ai">Java on Azure Container Apps training</a></span>
+      <span class="white--text"><a  class="white--text" href="https://github.com/Azure-Samples/java-on-aca-quarkus">Quarkus on Azure Container Apps training</a></span>
     </v-footer>
   </v-app>
 </template>
@@ -46,3 +46,9 @@
     }),
   }
 </script>
+
+<style>
+a, a:visited {
+    color: inherit;
+}
+</style>

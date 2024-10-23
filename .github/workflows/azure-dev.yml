@@ -2,6 +2,12 @@ name: azd up
 
 on:
   workflow_dispatch:
+    inputs:
+      deleteAzureResources:
+        description: 'Delete Azure resources at the end'
+        required: true
+        type: boolean
+        default: true
   push:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
@@ -54,25 +60,15 @@ jobs:
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
 
-      - name: Log in with Azure (Client Credentials)
-        if: ${{ env.AZURE_CREDENTIALS != '' }}
-        run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
-
-          azd auth login `
-            --client-id "$($info.clientId)" `
-            --client-secret "$($info.clientSecret)" `
-            --tenant-id "$($info.tenantId)"
-        shell: pwsh
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:
           # See https://github.com/Azure/azure-dev/issues/3104 for more details
-          AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+          AZD_INITIAL_ENVIRONMENT_CONFIG: '{}'
 
       - name: Deploy Application
         run: azd deploy --no-prompt
+
+      - name: Delete Azure resources
+        if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.deleteAzureResources) }}
+        run: azd down --force --purge

@@ -1,75 +1,120 @@
-# Azure Developer CLI (azd) Bicep Starter
+---
+page_type: sample
+languages:
+- azdeveloper
+- bicep
+- java
+- javascript
+- html
+- dockerfile
+products:
+- azure
+- azure-container-apps
+- azure-container-registry
+- azure-database-postgresql
+- azure-database-mysql
+- azure-log-analytics
+- azure-monitor
+- ms-build-openjdk
+urlFragment: java-on-aca-quarkus
+name: Java Quarkus Apps on Azure Container Apps
+description: Build and deploy Java Quarkus applications on Azure Container Apps using the Azure Developer CLI (azd)
+---
 
-A starter blueprint for getting your application up on Azure using [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview) (azd). Add your application code, write Infrastructure as Code assets in [Bicep](https://aka.ms/bicep) to get your application up and running quickly.
+# Java Quarkus Apps on Azure Container Apps
 
-The following assets have been provided:
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Github_Codespaces-Open-black?style=for-the-badge&logo=github
+)](https://codespaces.new/Azure-Samples/java-on-aca-quarkus)
+[![Open in Remote - Dev Containers](https://img.shields.io/badge/Dev_Containers-Open-blue?style=for-the-badge&logo=visualstudiocode
+)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/java-on-aca-quarkus)
 
-- Infrastructure-as-code (IaC) Bicep files under the `infra` folder that demonstrate how to provision resources and setup resource tagging for azd.
-- A [dev container](https://containers.dev) configuration file under the `.devcontainer` directory that installs infrastructure tooling by default. This can be readily used to create cloud-hosted developer environments such as [GitHub Codespaces](https://aka.ms/codespaces).
-- Continuous deployment workflows for CI providers such as GitHub Actions under the `.github` directory, and Azure Pipelines under the `.azdo` directory that work for most use-cases.
+The project consists of a few microservices that are deployed to Azure Container Apps using the Azure Developer CLI (azd):
+
+* [city-service](./src/city-service/): A [Quarkus](https://quarkus.io/) application that provides a list of cities. It's backed by Azure Database for PostgreSQL Flexible Server, instrumented with OpenTelemetry, and built into Quarkus native image.
+* [weather-service](./src/weather-service/): A [Quarkus](https://quarkus.io/) application that provides weather information for a given city. It's backed by Azure Database for MySQL Flexible Server, instrumented with OpenTelemetry, and built into Quarkus native image.
+* [gateway](./src/gateway/): A Nginx reverse proxy. It routes requests from the frontend to the appropriate service introduced above, and also instrumented with OpenTelemetry.
+* [weather-app](./src/weather-app/): A Vue.js frontend that connects to the gateway and displays the weather information for cities.
+
+With Azure Developer CLI (azd), you’re just a few commands away from having this fully functional sample application up and running in Azure. Let's get started!
+
+> Refer to the [App Templates](https://github.com/microsoft/App-Templates) repository Readme for more samples that are compatible with [`azd`](https://github.com/Azure/azure-dev/).
+
+![What is the weather today?](./assets/what-is-the-weather-today.png)
+
+## Pre-requisites
+
+- [Install the Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+- An Azure account with an active subscription. [Create one for free](https://azure.microsoft.com/free) if you don't have an account.
+- [OpenJDK 17](https://learn.microsoft.com/java/openjdk/install)
+- [Node.js with npm (20.18.0+)](https://nodejs.org/)
+- [Docker](https://docs.docker.com/get-docker/)
+
+## Quickstart
+
+To learn how to get started with any template, follow [this quickstart](https://learn.microsoft.com/azure/developer/azure-developer-cli/get-started?tabs=localinstall&pivots=programming-language-java). For this template `Azure-Samples/java-on-aca-quarkus`, you need to execute a few additional steps as described below.
+
+This quickstart will show you how to authenticate on Azure, initialize using a template, provision the infrastructure, and deploy the code to Azure:
+
+```bash
+# Log in to azd if you haven't already
+azd auth login
+
+# First-time project setup. Initialize a project in the current directory using this template
+azd init --template Azure-Samples/java-on-aca-quarkus
+
+# Provision and deploy to Azure
+azd up
+```
+
+At the end of the deployment, you should see 4 services deployed, including **city-service**, **gateway**, **weather-app**, and **weather-service**.
+Open the **Endpoint** of the service **weather-app**. Open the endpoint in a browser to see the application in action, which looks like the screenshot above.
+
+## Application Architecture
+
+This sample application uses the following Azure resources:
+
+- [Azure Container Apps (Environment)](https://learn.microsoft.com/azure/container-apps/) to host 4 microservices as Container Apps
+- [Azure Container Registry](https://learn.microsoft.com/azure/container-registry/) to host Docker images for 4 microservices
+- [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/azure/postgresql/) to store the data for the *city-service*
+- [Azure Database for MySQL Flexible Server](https://learn.microsoft.com/azure/mysql/flexible-server/overview/) to store the data for the *weather-service*
+- [Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/) for monitoring and logging
+
+> This template provisions resources to an Azure subscription that you will select upon provisioning them. Refer to the [Pricing calculator for Microsoft Azure](https://azure.microsoft.com/pricing/calculator/) to estimate the cost you might incur when this template is running on Azure and, if needed, update the included Azure resource definitions found in `infra/main.bicep` to suit your needs.
+
+## Application Code
+
+This template is structured to follow the [Azure Developer CLI template creation concepts](https://learn.microsoft.com/azure/developer/azure-developer-cli/make-azd-compatible#template-creation-concepts). You can learn more about `azd` architecture in [the official documentation](https://learn.microsoft.com/azure/developer/azure-developer-cli/make-azd-compatible).
 
 ## Next Steps
 
-### Step 1: Add application code
+At this point, you have a complete application deployed on Azure.
 
-1. Initialize the service source code projects anywhere under the current directory. Ensure that all source code projects can be built successfully.
-    - > Note: For `function` services, it is recommended to initialize the project using the provided [quickstart tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-get-started).
-2. Once all service source code projects are building correctly, update `azure.yaml` to reference the source code projects.
-3. Run `azd package` to validate that all service source code projects can be built and packaged locally.
+### Azure Developer CLI
 
-### Step 2: Provision Azure resources
+You have deployed the sample application using Azure Developer CLI, however there is much more that the Azure Developer CLI can do. These next steps will introduce you to additional commands that will make creating applications on Azure much easier. Using the Azure Developer CLI, you can setup your pipelines, monitor your application, test and debug locally.
 
-Update or add Bicep files to provision the relevant Azure resources. This can be done incrementally, as the list of [Azure resources](https://learn.microsoft.com/en-us/azure/?product=popular) are explored and added.
+- [`azd down`](https://learn.microsoft.com/azure/developer/azure-developer-cli/reference#azd-down) - to delete all the Azure resources created with this template 
 
-- A reference library that contains all of the Bicep modules used by the azd templates can be found [here](https://github.com/Azure-Samples/todo-nodejs-mongo/tree/main/infra/core).
-- All Azure resources available in Bicep format can be found [here](https://learn.microsoft.com/en-us/azure/templates/).
+- [`azd pipeline config`](https://learn.microsoft.com/azure/developer/azure-developer-cli/configure-devops-pipeline?tabs=GitHub) - to configure a CI/CD pipeline (using GitHub Actions or Azure DevOps) to deploy your application whenever code is pushed to the main branch.
 
-Run `azd provision` whenever you want to ensure that changes made are applied correctly and work as expected.
+- [`azd monitor`](https://learn.microsoft.com/azure/developer/azure-developer-cli/monitor-your-app) - to monitor the application and quickly navigate to the various Application Insights dashboards (e.g. overview, live metrics, logs)
 
-### Step 3: Tie in application and infrastructure
+- [Run and Debug Locally](https://learn.microsoft.com/azure/developer/azure-developer-cli/debug?pivots=ide-vs-code) - using Visual Studio Code and the Azure Developer CLI extension
 
-Certain changes to Bicep files or deployment manifests are required to tie in application and infrastructure together. For example:
+### Additional `azd` commands
 
-1. Set up [application settings](#application-settings) for the code running in Azure to connect to other Azure resources.
-1. If you are accessing sensitive resources in Azure, set up [managed identities](#managed-identities) to allow the code running in Azure to securely access the resources.
-1. If you have secrets, it is recommended to store secrets in [Azure Key Vault](#azure-key-vault) that then can be retrieved by your application, with the use of managed identities.
-1. Configure [host configuration](#host-configuration) on your hosting platform to match your application's needs. This may include networking options, security options, or more advanced configuration that helps you take full advantage of Azure capabilities.
+The Azure Developer CLI includes many other commands to help with your Azure development experience. You can view these commands at the terminal by running `azd help`. You can also view the full list of commands on our [Azure Developer CLI command](https://aka.ms/azure-dev/ref) page.
 
-For more details, see [additional details](#additional-details) below.
+## Telemetry Configuration
 
-When changes are made, use azd to validate and apply your changes in Azure, to ensure that they are working as expected:
+Telemetry collection is on by default.
 
-- Run `azd up` to validate both infrastructure and application code changes.
-- Run `azd deploy` to validate application code changes only.
+To opt-out, set the variable enableTelemetry to false in `infra/main.parameters.json` or in bicep template `infra/main.bicep`. It can be set using the following command when the provisionning is done with Azure Developer CLI:
 
-### Step 4: Up to Azure
+```bash
+azd env set enableTelemetry false
+```
 
-Finally, run `azd up` to run the end-to-end infrastructure provisioning (`azd provision`) and deployment (`azd deploy`) flow. Visit the service endpoints listed to see your application up-and-running!
+## Reporting Issues and Feedback
 
-## Additional Details
-
-The following section examines different concepts that help tie in application and infrastructure.
-
-### Application settings
-
-It is recommended to have application settings managed in Azure, separating configuration from code. Typically, the service host allows for application settings to be defined.
-
-- For `appservice` and `function`, application settings should be defined on the Bicep resource for the targeted host. Reference template example [here](https://github.com/Azure-Samples/todo-nodejs-mongo/tree/main/infra).
-- For `aks`, application settings are applied using deployment manifests under the `<service>/manifests` folder. Reference template example [here](https://github.com/Azure-Samples/todo-nodejs-mongo-aks/tree/main/src/api/manifests).
-
-### Managed identities
-
-[Managed identities](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) allows you to secure communication between services. This is done without having the need for you to manage any credentials.
-
-### Azure Key Vault
-
-[Azure Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/general/overview) allows you to store secrets securely. Your application can access these secrets securely through the use of managed identities.
-
-### Host configuration
-
-For `appservice`, the following host configuration options are often modified:
-
-- Language runtime version
-- Exposed port from the running container (if running a web service)
-- Allowed origins for CORS (Cross-Origin Resource Sharing) protection (if running a web service backend with a frontend)
-- The run command that starts up your service
+If you have any feature requests, issues, or areas for improvement, please [file an issue](https://aka.ms/azure-dev/issues). To keep up-to-date, ask questions, or share suggestions, join our [GitHub Discussions](https://aka.ms/azure-dev/discussions). You may also contact us via AzDevTeam@microsoft.com.

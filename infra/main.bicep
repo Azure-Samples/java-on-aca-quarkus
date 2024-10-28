@@ -44,6 +44,10 @@ param logAnalyticsWorkspaceName string = ''
 @description('Name of the application insights to deploy. If not specified, a name will be generated. The maximum length is 255 characters.')
 param applicationInsightsName string = ''
 
+@maxLength(160)
+@description('Name of the application insights dashboard to deploy. If not specified, a name will be generated. The maximum length is 160 characters.')
+param applicationInsightsDashboardName string = ''
+
 @maxLength(63)
 @description('Name of the PostgreSQL flexible server to deploy. If not specified, a name will be generated. The name is global and must be unique within Azure. The maximum length is 63 characters. It contains only lowercase letters, numbers and hyphens, and cannot start nor end with a hyphen.')
 param postgresFlexibleServerName string = ''
@@ -146,6 +150,7 @@ var _resourceGroupName = !empty(resourceGroupName) ? resourceGroupName : take('$
 var _containerAppsEnvironmentName = !empty(containerAppsEnvironmentName) ? containerAppsEnvironmentName : take('${abbrs.appManagedEnvironments}${environmentName}', 60)
 var _logAnalyticsWorkspaceName = !empty(logAnalyticsWorkspaceName) ? logAnalyticsWorkspaceName : take('${abbrs.operationalInsightsWorkspaces}${environmentName}', 63)
 var _applicationInsightsName = !empty(applicationInsightsName) ? applicationInsightsName : take('${abbrs.insightsComponents}${environmentName}', 255)
+var _applicationInsightsDashboardName = !empty(applicationInsightsDashboardName) ? applicationInsightsDashboardName : take('${abbrs.portalDashboards}${environmentName}', 160)
 var _cityServiceContainerAppName = !empty(cityServiceContainerAppName) ? cityServiceContainerAppName : take('${abbrs.appContainerApps}city-service-${environmentName}', 32)
 var _cityServiceIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}city-service-${resourceToken}'
 var _weatherServiceContainerAppName = !empty(weatherServiceContainerAppName) ? weatherServiceContainerAppName : take('${abbrs.appContainerApps}weather-service-${environmentName}', 32)
@@ -196,6 +201,7 @@ module monitoring './core/monitor/monitoring.bicep' = {
     tags: tags
     logAnalyticsName: _logAnalyticsWorkspaceName
     applicationInsightsName: _applicationInsightsName
+    applicationInsightsDashboardName: _applicationInsightsDashboardName
   }
 }
 

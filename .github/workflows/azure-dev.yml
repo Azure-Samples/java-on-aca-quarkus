@@ -16,6 +16,7 @@ on:
       - master
     paths-ignore:
       - '.gitignore'
+      - '.gitattributes'
       - '**/*.md'
       - '**/*.txt'
       - '.devcontainer/**'

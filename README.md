@@ -43,11 +43,14 @@ With Azure Developer CLI (azd), you’re just a few commands away from having th
 
 ## Pre-requisites
 
-- [Install the Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
-- An Azure account with an active subscription. [Create one for free](https://azure.microsoft.com/free) if you don't have an account.
+If you want to run the template locally, you need to satisfy the following requirements:
+
+- Bash for Unix-like systems or PowerShell 7 for Windows
+- [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
 - [OpenJDK 17](https://learn.microsoft.com/java/openjdk/install)
 - [Node.js with npm (20.18.0+)](https://nodejs.org/)
 - [Docker](https://docs.docker.com/get-docker/)
+- An Azure account with an active subscription. [Create one for free](https://azure.microsoft.com/free) if you don't have an account.
 
 ## Quickstart
 

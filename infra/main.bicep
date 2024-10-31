@@ -116,11 +116,6 @@ param weatherAppContainerAppName string = ''
 @description('Set if the weather-app container app already exists.')
 param weatherFrontendAppExists bool = false
 
-/* -------------------------------- Telemetry ------------------------------- */
-
-@description('Track the deployment of the template if true.')
-param enableTelemetry bool = true
-
 /* -------------------------------------------------------------------------- */
 /*                                  VARIABLES                                 */
 /* -------------------------------------------------------------------------- */
@@ -140,9 +135,6 @@ var tags = {
   // Tag all resources with the environment name.
   'azd-env-name': environmentName
 }
-
-@description('GUID used for tracking the deployment of the template.')
-var telemetryId = '8914f594-8fca-11ef-9dc0-00155d7f6a4b-quaacaazd'
 
 /* ----------------------------- Resource Names ----------------------------- */
 
@@ -346,19 +338,6 @@ module weatherApp './app/weather-app.bicep' = {
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     containerRegistryHostSuffix: containerRegistryHostSuffix
-  }
-}
-
-resource telemetrydeployment 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry) {
-  name: telemetryId
-  location: location
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#'
-      contentVersion: '1.0.0.0'
-      resources: {}
-    }
   }
 }
 

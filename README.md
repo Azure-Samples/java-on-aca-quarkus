@@ -50,6 +50,7 @@ If you want to run the template locally, you need to satisfy the following requi
 - [OpenJDK 17](https://learn.microsoft.com/java/openjdk/install)
 - [Node.js with npm (20.18.0+)](https://nodejs.org/)
 - [Docker](https://docs.docker.com/get-docker/)
+  - Make sure Docker is targeting the Linux containers if you are using Docker Desktop for Windows. See [Run Your First Linux Container](https://learn.microsoft.com/en-us/virtualization/windowscontainers/quick-start/quick-start-windows-10-linux#run-your-first-linux-container) for more information.
 - An Azure account with an active subscription. [Create one for free](https://azure.microsoft.com/free) if you don't have an account.
 
 ## Quickstart
@@ -70,7 +71,7 @@ azd up
 ```
 
 At the end of the deployment, you should see 4 services deployed, including **city-service**, **gateway**, **weather-app**, and **weather-service**.
-Open the **Endpoint** of the service **weather-app**. Open the endpoint in a browser to see the application in action, which looks like the screenshot above.
+Open the **Endpoint** of the service **weather-app**, select **Go** button, and you should see the weather application which looks like the screenshot above.
 
 ## Application Architecture
 
